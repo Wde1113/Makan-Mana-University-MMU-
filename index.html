@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F9F9FB" />
+  <title>Makan Mana Melaka? (Malam Edition)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: "#2D2D32",
+            muted: "#77777F",
+            shell: "#F9F9FB",
+            sage: "#6E8A76",
+            terracotta: "#C47A62"
+          },
+          fontFamily: {
+            sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"]
+          },
+          boxShadow: {
+            soft: "0 8px 30px rgb(0,0,0,0.04)",
+            float: "0 18px 60px rgb(0,0,0,0.10)"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      background: #ECEEF0;
+      overscroll-behavior: none;
+    }
+
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+
+    .preserve-3d {
+      transform-style: preserve-3d;
+    }
+
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+
+    .safe-bottom {
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+
+    .sheet-open {
+      transform: translateY(0);
+    }
+
+    .sheet-closed {
+      transform: translateY(105%);
+    }
+
+    .deck-frame {
+      aspect-ratio: 0.72;
+      width: min(100%, 340px, clamp(232px, calc((100dvh - 360px) * 0.72), 340px));
+    }
+  </style>
+</head>
+<body>
+  <!-- Native-style mobile shell -->
+  <main class="max-w-md mx-auto min-h-[100dvh] flex flex-col bg-[#F9F9FB] text-[#1A1A1E] relative overflow-hidden font-sans">
+    <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white to-transparent pointer-events-none"></div>
+    <div class="relative flex flex-col min-h-[100dvh] px-5 pt-5 safe-bottom">
+      <header class="flex items-center justify-between gap-4">
+        <div>
+          <p class="text-xs uppercase tracking-[0.22em] text-[#6E8A76] font-semibold">Malam Edition</p>
+          <h1 class="mt-1 text-2xl font-semibold tracking-normal text-[#2D2D32]">Makan Mana Melaka?</h1>
+        </div>
+        <button id="openSheetBtn" type="button" class="h-12 px-4 rounded-2xl bg-white text-[#2D2D32] shadow-soft border border-black/5 text-sm font-semibold active:scale-[0.98] transition">
+          Add Spot
+        </button>
+      </header>
+
+      <section class="mt-8 flex items-center justify-between rounded-3xl bg-white px-5 py-4 shadow-soft border border-black/[0.03]">
+        <div>
+          <p class="text-sm text-[#77777F]">Tonight's pool</p>
+          <p id="spotCount" class="mt-1 text-xl font-semibold text-[#2D2D32]">5 spots</p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm text-[#77777F]">Mode</p>
+          <p class="mt-1 text-xl font-semibold text-[#C47A62]">Non-halal</p>
+        </div>
+      </section>
+
+      <section class="mt-4 rounded-3xl bg-white p-4 shadow-soft border border-black/[0.03]">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-[0.20em] text-[#6E8A76] font-semibold">Filter</p>
+            <h2 class="mt-1 text-lg font-semibold text-[#2D2D32]">Choose the vibe</h2>
+          </div>
+          <button id="clearFiltersBtn" type="button" class="h-12 px-4 rounded-2xl bg-[#F9F9FB] text-[#77777F] text-sm font-semibold active:scale-[0.98] transition">
+            Clear
+          </button>
+        </div>
+
+        <div class="mt-4 grid grid-cols-3 gap-2" aria-label="Meal time filter">
+          <button type="button" class="filter-chip h-12 rounded-2xl bg-[#6E8A76] text-white text-sm font-semibold transition active:scale-[0.98]" data-filter-group="category" data-filter-value="All">All</button>
+          <button type="button" class="filter-chip h-12 rounded-2xl bg-[#F9F9FB] text-[#2D2D32] text-sm font-semibold transition active:scale-[0.98]" data-filter-group="category" data-filter-value="Dinner">Dinner</button>
+          <button type="button" class="filter-chip h-12 rounded-2xl bg-[#F9F9FB] text-[#2D2D32] text-sm font-semibold transition active:scale-[0.98]" data-filter-group="category" data-filter-value="Supper">Supper</button>
+        </div>
+
+        <div class="mt-3 grid grid-cols-3 gap-2" aria-label="Cuisine filter">
+          <button type="button" class="filter-chip h-12 rounded-2xl bg-[#6E8A76] text-white text-sm font-semibold transition active:scale-[0.98]" data-filter-group="genre" data-filter-value="All">Any Food</button>
+          <button type="button" class="filter-chip h-12 rounded-2xl bg-[#F9F9FB] text-[#2D2D32] text-sm font-semibold transition active:scale-[0.98]" data-filter-group="genre" data-filter-value="Thai">Thai</button>
+          <button type="button" class="filter-chip h-12 rounded-2xl bg-[#F9F9FB] text-[#2D2D32] text-sm font-semibold transition active:scale-[0.98]" data-filter-group="genre" data-filter-value="Chinese">Chinese</button>
+        </div>
+      </section>
+
+      <!-- Minimalist flip deck -->
+      <section class="flex-1 flex flex-col justify-center py-6">
+        <div class="deck-frame relative mx-auto perspective-1000">
+          <div class="absolute -inset-3 rounded-[2rem] bg-[#6E8A76]/10 blur-2xl"></div>
+          <div id="cardInner" class="relative h-full w-full preserve-3d transition-transform duration-500 ease-out">
+            <article class="absolute inset-0 backface-hidden rounded-[2rem] bg-white shadow-float border border-black/[0.04] p-6 flex flex-col overflow-hidden">
+              <div class="absolute inset-4 rounded-[1.5rem] border border-[#6E8A76]/20"></div>
+              <div class="absolute inset-x-8 top-8 h-28 rounded-[1.25rem] bg-[radial-gradient(circle_at_20%_20%,rgba(196,122,98,0.20),transparent_34%),linear-gradient(135deg,rgba(110,138,118,0.16),rgba(110,138,118,0.04))]"></div>
+              <div class="relative mt-auto">
+                <p class="text-sm uppercase tracking-[0.22em] text-[#6E8A76] font-semibold">Draw Deck</p>
+                <h2 class="mt-3 text-4xl font-semibold leading-tight text-[#2D2D32]">Tap into dinner fate.</h2>
+                <p class="mt-4 text-base leading-7 text-[#77777F]">A soft shuffle for late-night Melaka cravings.</p>
+              </div>
+              <div class="relative mt-8 grid grid-cols-3 gap-2">
+                <span class="h-2 rounded-full bg-[#6E8A76]/25"></span>
+                <span class="h-2 rounded-full bg-[#C47A62]/25"></span>
+                <span class="h-2 rounded-full bg-[#2D2D32]/10"></span>
+              </div>
+            </article>
+
+            <article class="absolute inset-0 backface-hidden rotate-y-180 rounded-[2rem] bg-white shadow-float border border-black/[0.04] p-6 flex flex-col">
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <p id="resultCategory" class="text-xs uppercase tracking-[0.22em] text-[#6E8A76] font-semibold">Dinner</p>
+                  <h2 id="resultName" class="mt-3 text-3xl font-semibold leading-tight text-[#2D2D32] break-words">木木夕 (Mumuxi Cafe)</h2>
+                </div>
+                <span id="resultPrice" class="shrink-0 rounded-full bg-[#F9F9FB] px-3 py-2 text-sm font-semibold text-[#2D2D32]">$$</span>
+              </div>
+
+              <div class="mt-8 space-y-4">
+                <div class="rounded-2xl bg-[#F9F9FB] p-4">
+                  <p class="text-xs uppercase tracking-[0.18em] text-[#77777F]">Area</p>
+                  <p id="resultArea" class="mt-2 text-lg font-semibold text-[#2D2D32]">Kota Laksamana</p>
+                </div>
+                <div class="rounded-2xl bg-[#F9F9FB] p-4">
+                  <p class="text-xs uppercase tracking-[0.18em] text-[#77777F]">Genre</p>
+                  <p id="resultGenre" class="mt-2 text-lg font-semibold text-[#2D2D32]">Taiwanese Fusion</p>
+                </div>
+              </div>
+
+              <div class="mt-auto space-y-3">
+                <button id="mapBtn" type="button" class="h-12 w-full rounded-2xl bg-[#6E8A76] text-white text-sm font-semibold shadow-soft active:scale-[0.98] transition">
+                  Locate on Map
+                </button>
+                <p class="text-center text-xs text-[#77777F]">Found one? Draw again anytime.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <footer class="relative z-10">
+        <button id="drawBtn" type="button" class="h-12 w-full rounded-2xl bg-[#2D2D32] text-white text-base font-semibold shadow-soft active:scale-[0.98] transition">
+          Draw Next Place
+        </button>
+      </footer>
+    </div>
+
+    <div id="overlay" class="absolute inset-0 z-30 bg-black/20 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+    <!-- Slide-up sheet for user-saved restaurant records -->
+    <aside id="sheet" class="absolute inset-x-0 bottom-0 z-40 sheet-closed transition-transform duration-300 ease-out">
+      <form id="spotForm" class="max-h-[92dvh] overflow-y-auto rounded-t-[2rem] bg-white px-5 pt-3 safe-bottom shadow-float border-t border-black/[0.04]">
+        <div class="mx-auto h-1.5 w-11 rounded-full bg-black/10"></div>
+        <div class="mt-5 flex items-center justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.22em] text-[#6E8A76] font-semibold">Personal List</p>
+            <h2 class="mt-1 text-2xl font-semibold text-[#2D2D32]">Add a spot</h2>
+          </div>
+          <button id="closeSheetBtn" type="button" class="h-12 w-12 rounded-2xl bg-[#F9F9FB] text-[#2D2D32] text-2xl leading-none active:scale-[0.98] transition" aria-label="Close form">&times;</button>
+        </div>
+
+        <div class="mt-6 space-y-4">
+          <label class="block">
+            <span class="text-sm font-medium text-[#2D2D32]">Restaurant Name</span>
+            <input id="nameInput" required type="text" autocomplete="off" class="mt-2 h-12 w-full rounded-2xl border border-black/10 bg-[#F9F9FB] px-4 text-base text-[#2D2D32] outline-none focus:border-[#6E8A76] focus:ring-4 focus:ring-[#6E8A76]/10" placeholder="e.g. Your favorite supper place" />
+          </label>
+
+          <div class="grid grid-cols-1 gap-4">
+            <label class="block">
+              <span class="text-sm font-medium text-[#2D2D32]">Area</span>
+              <select id="areaInput" required class="mt-2 h-12 w-full rounded-2xl border border-black/10 bg-[#F9F9FB] px-4 text-base text-[#2D2D32] outline-none focus:border-[#6E8A76] focus:ring-4 focus:ring-[#6E8A76]/10">
+                <option>Kota Laksamana</option>
+                <option>Klebang</option>
+                <option>Malim</option>
+                <option>Ayer Keroh / MITC</option>
+                <option>Melaka Mall Area</option>
+                <option>Jonker Street</option>
+                <option>Other</option>
+              </select>
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-medium text-[#2D2D32]">Category</span>
+              <select id="categoryInput" required class="mt-2 h-12 w-full rounded-2xl border border-black/10 bg-[#F9F9FB] px-4 text-base text-[#2D2D32] outline-none focus:border-[#6E8A76] focus:ring-4 focus:ring-[#6E8A76]/10">
+                <option>Dinner</option>
+                <option>Supper</option>
+                <option>Dessert</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="block">
+            <span class="text-sm font-medium text-[#2D2D32]">Food Genre</span>
+            <input id="genreInput" required type="text" autocomplete="off" class="mt-2 h-12 w-full rounded-2xl border border-black/10 bg-[#F9F9FB] px-4 text-base text-[#2D2D32] outline-none focus:border-[#6E8A76] focus:ring-4 focus:ring-[#6E8A76]/10" placeholder="e.g. Claypot, lok lok, dessert" />
+          </label>
+
+          <fieldset>
+            <legend class="text-sm font-medium text-[#2D2D32]">Price Tag</legend>
+            <div class="mt-2 grid grid-cols-3 gap-3">
+              <label class="price-option h-12 rounded-2xl border border-[#6E8A76] bg-[#6E8A76] text-white flex items-center justify-center font-semibold cursor-pointer transition">
+                <input class="sr-only" type="radio" name="price" value="$" checked />
+                $
+              </label>
+              <label class="price-option h-12 rounded-2xl border border-black/10 bg-[#F9F9FB] text-[#2D2D32] flex items-center justify-center font-semibold cursor-pointer transition">
+                <input class="sr-only" type="radio" name="price" value="$$" />
+                $$
+              </label>
+              <label class="price-option h-12 rounded-2xl border border-black/10 bg-[#F9F9FB] text-[#2D2D32] flex items-center justify-center font-semibold cursor-pointer transition">
+                <input class="sr-only" type="radio" name="price" value="$$$" />
+                $$$
+              </label>
+            </div>
+          </fieldset>
+        </div>
+
+        <button type="submit" class="mt-6 h-12 w-full rounded-2xl bg-[#6E8A76] text-white text-base font-semibold shadow-soft active:scale-[0.98] transition">
+          Save Spot
+        </button>
+      </form>
+    </aside>
+  </main>
+
+  <script>
+    const defaultFood = [
+      { id: 1, name: "木木夕 (Mumuxi Cafe)", area: "Kota Laksamana", category: "Dinner", genre: "Taiwanese Fusion", price: "$$" },
+      { id: 2, name: "百川阁 (Bai Chuan Ge Restaurant)", area: "Kota Syahbandar", category: "Dinner", genre: "Chinese / Stir-Fry", price: "$$" },
+      { id: 3, name: "Chef Lee", area: "Kota Laksamana", category: "Dinner", genre: "Western-Asian Fusion", price: "$$$" },
+      { id: 4, name: "McDonald's (MCD - MITC)", area: "Ayer Keroh / MITC", category: "Supper", genre: "Fast Food", price: "$" },
+      { id: 5, name: "McDonald's (MCD - Melaka Mall)", area: "Melaka Mall Area", category: "Supper", genre: "Fast Food", price: "$" }
+    ];
+
+    const STORAGE_KEY = "makanManaMelakaCustomFood";
+
+    const cardInner = document.querySelector("#cardInner");
+    const drawBtn = document.querySelector("#drawBtn");
+    const mapBtn = document.querySelector("#mapBtn");
+    const spotCount = document.querySelector("#spotCount");
+    const overlay = document.querySelector("#overlay");
+    const sheet = document.querySelector("#sheet");
+    const spotForm = document.querySelector("#spotForm");
+    const openSheetBtn = document.querySelector("#openSheetBtn");
+    const closeSheetBtn = document.querySelector("#closeSheetBtn");
+    const clearFiltersBtn = document.querySelector("#clearFiltersBtn");
+    const priceOptions = document.querySelectorAll(".price-option");
+    const filterChips = document.querySelectorAll(".filter-chip");
+
+    const result = {
+      name: document.querySelector("#resultName"),
+      area: document.querySelector("#resultArea"),
+      category: document.querySelector("#resultCategory"),
+      genre: document.querySelector("#resultGenre"),
+      price: document.querySelector("#resultPrice")
+    };
+
+    let customFood = loadCustomFood();
+    let selectedItem = defaultFood[0];
+    let lastDrawnId = null;
+    let filters = {
+      category: "All",
+      genre: "All"
+    };
+
+    // Custom spots are kept separate from the default list so refreshes stay clean and predictable.
+    function loadCustomFood() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCustomFood() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(customFood));
+    }
+
+    function getFoodPool() {
+      return [...defaultFood, ...customFood];
+    }
+
+    function getFilteredFoodPool() {
+      return getFoodPool().filter((item) => {
+        const categoryMatches = filters.category === "All" || item.category === filters.category;
+        const genreText = `${item.genre} ${item.name}`.toLowerCase();
+        const genreMatches = filters.genre === "All" || genreText.includes(filters.genre.toLowerCase());
+        return categoryMatches && genreMatches;
+      });
+    }
+
+    function updateSpotCount() {
+      const total = getFoodPool().length;
+      const count = getFilteredFoodPool().length;
+      spotCount.textContent = filters.category === "All" && filters.genre === "All"
+        ? `${total} ${total === 1 ? "spot" : "spots"}`
+        : `${count} match${count === 1 ? "" : "es"}`;
+      drawBtn.disabled = count === 0;
+      drawBtn.textContent = count === 0 ? "No Matching Spots" : "Draw Next Place";
+      drawBtn.classList.toggle("opacity-40", count === 0);
+      drawBtn.classList.toggle("cursor-not-allowed", count === 0);
+    }
+
+    function renderResult(item) {
+      selectedItem = item;
+      result.name.textContent = item.name;
+      result.area.textContent = item.area;
+      result.category.textContent = item.category;
+      result.genre.textContent = item.genre;
+      result.price.textContent = item.price;
+    }
+
+    function syncFilterChips() {
+      filterChips.forEach((button) => {
+        const isSelected = filters[button.dataset.filterGroup] === button.dataset.filterValue;
+        button.classList.toggle("bg-[#6E8A76]", isSelected);
+        button.classList.toggle("text-white", isSelected);
+        button.classList.toggle("bg-[#F9F9FB]", !isSelected);
+        button.classList.toggle("text-[#2D2D32]", !isSelected);
+      });
+    }
+
+    // Briefly reset the deck before flipping, which makes repeat draws feel intentional.
+    function drawNextPlace() {
+      const pool = getFilteredFoodPool();
+      if (!pool.length) return;
+      const choices = pool.length > 1 ? pool.filter((item) => item.id !== lastDrawnId) : pool;
+      const item = choices[Math.floor(Math.random() * choices.length)];
+
+      cardInner.classList.remove("rotate-y-180");
+      window.setTimeout(() => {
+        renderResult(item);
+        lastDrawnId = item.id;
+        cardInner.classList.add("rotate-y-180");
+      }, 180);
+    }
+
+    function openSheet() {
+      overlay.classList.remove("opacity-0", "pointer-events-none");
+      overlay.classList.add("opacity-100");
+      sheet.classList.remove("sheet-closed");
+      sheet.classList.add("sheet-open");
+      window.setTimeout(() => document.querySelector("#nameInput").focus(), 280);
+    }
+
+    function closeSheet() {
+      overlay.classList.add("opacity-0", "pointer-events-none");
+      overlay.classList.remove("opacity-100");
+      sheet.classList.add("sheet-closed");
+      sheet.classList.remove("sheet-open");
+      spotForm.reset();
+      syncPriceSelection();
+    }
+
+    function syncPriceSelection() {
+      priceOptions.forEach((label) => {
+        const input = label.querySelector("input");
+        const isSelected = input.checked;
+        label.classList.toggle("bg-[#6E8A76]", isSelected);
+        label.classList.toggle("border-[#6E8A76]", isSelected);
+        label.classList.toggle("text-white", isSelected);
+        label.classList.toggle("bg-[#F9F9FB]", !isSelected);
+        label.classList.toggle("border-black/10", !isSelected);
+        label.classList.toggle("text-[#2D2D32]", !isSelected);
+      });
+    }
+
+    drawBtn.addEventListener("click", drawNextPlace);
+    openSheetBtn.addEventListener("click", openSheet);
+    closeSheetBtn.addEventListener("click", closeSheet);
+    clearFiltersBtn.addEventListener("click", () => {
+      filters = { category: "All", genre: "All" };
+      syncFilterChips();
+      updateSpotCount();
+    });
+    overlay.addEventListener("click", closeSheet);
+
+    filterChips.forEach((button) => {
+      button.addEventListener("click", () => {
+        filters[button.dataset.filterGroup] = button.dataset.filterValue;
+        lastDrawnId = null;
+        cardInner.classList.remove("rotate-y-180");
+        syncFilterChips();
+        updateSpotCount();
+      });
+    });
+
+    priceOptions.forEach((label) => {
+      label.addEventListener("click", () => window.setTimeout(syncPriceSelection, 0));
+    });
+
+    // Save new records to localStorage and immediately reveal the newly added spot.
+    spotForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(spotForm);
+      const item = {
+        id: Date.now(),
+        name: document.querySelector("#nameInput").value.trim(),
+        area: document.querySelector("#areaInput").value,
+        category: document.querySelector("#categoryInput").value,
+        genre: document.querySelector("#genreInput").value.trim(),
+        price: formData.get("price")
+      };
+
+      customFood.push(item);
+      saveCustomFood();
+      filters = { category: "All", genre: "All" };
+      syncFilterChips();
+      updateSpotCount();
+      renderResult(item);
+      lastDrawnId = item.id;
+      cardInner.classList.add("rotate-y-180");
+      closeSheet();
+    });
+
+    mapBtn.addEventListener("click", () => {
+      if (!selectedItem) return;
+      const query = encodeURIComponent(`${selectedItem.name} ${selectedItem.area} Melaka`);
+      window.open(`https://maps.google.com/?q=${query}`, "_blank");
+    });
+
+    updateSpotCount();
+    renderResult(selectedItem);
+    syncFilterChips();
+    syncPriceSelection();
+  </script>
+</body>
+</html>
